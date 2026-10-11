@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+pandas
+numpy
+joblib
+scikit-learn
+scikit-survival
+python-dotenv
+google-genai
+sentence-transformers
+faiss-cpu
+langchain-community
+langchain-huggingface
