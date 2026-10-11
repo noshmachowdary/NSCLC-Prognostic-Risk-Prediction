@@ -80,6 +80,32 @@ export async function postAsk(question) {
 }
 
 // ============================================================
+// CT FEATURE EXTRACTION
+// ============================================================
+
+export async function postExtractFeatures(file, onStage) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 120000);
+  try {
+    const res = await fetch(`${FASTAPI_BASE_URL}/extract-features`, {
+      method: "POST",
+      body: formData,
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    return { ok: true, data: json.data, mocked: false };
+  } catch (err) {
+    clearTimeout(timeout);
+    return { ok: false, data: mockExtractedFeatures(), mocked: true, error: err.message };
+  }
+}
+
+// ============================================================
 // MOCK PREDICTION DATA
 // ============================================================
 

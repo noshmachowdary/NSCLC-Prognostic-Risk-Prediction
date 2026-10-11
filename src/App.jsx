@@ -90,6 +90,7 @@ function App() {
             loading={predictLoading}
             result={predictResult}
             darkMode={darkMode}
+            onNotify={setNotification}
           />
         )}
         {activeTab === "chat" && (

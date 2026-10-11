@@ -2,7 +2,7 @@ import PatientForm from "./PatientForm.jsx";
 import RiskStratificationCard from "./RiskStratificationCard.jsx";
 import ExplainabilityCard from "./ExplainabilityCard.jsx";
 
-function PredictionDashboard({ onPredict, loading, result, darkMode }) {
+function PredictionDashboard({ onPredict, loading, result, darkMode, onNotify }) {
   return (
     <div className="mx-auto max-w-[1600px] px-4 py-5 sm:px-6">
       <div className="flex flex-col gap-5 lg:flex-row">
@@ -17,7 +17,7 @@ function PredictionDashboard({ onPredict, loading, result, darkMode }) {
                 Enter clinical and CT radiomic features for risk prediction.
               </p>
             </div>
-            <PatientForm onPredict={onPredict} loading={loading} />
+            <PatientForm onPredict={onPredict} loading={loading} onNotify={onNotify} />
           </div>
         </div>
 
