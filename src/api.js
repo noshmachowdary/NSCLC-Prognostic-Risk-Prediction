@@ -3,7 +3,7 @@
 // ============================================================
 
 export let FASTAPI_BASE_URL =
-  localStorage.getItem("fastapi_base_url") || "http://localhost:8000";
+  localStorage.getItem("fastapi_base_url") || "http://127.0.0.1:8000";
 
 export function setBaseUrl(url) {
   FASTAPI_BASE_URL = url;
