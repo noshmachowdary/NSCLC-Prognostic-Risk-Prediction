@@ -12,3 +12,6 @@ sentence-transformers
 faiss-cpu
 langchain-community
 langchain-huggingface
+pyradiomics
+SimpleITK
+torch

@@ -27,12 +27,15 @@ const SAMPLE_CLINICAL = {
 };
 
 const SAMPLE_RADIOMIC = {
+  "original_glszm_SizeZoneNonUniformity": 45.3,
   "original_shape_MeshVolume": 42000,
-  sphericity: 0.72,
-  mean_intensity: -450,
+  "original_shape_MajorAxisLength": 38.5,
+  "original_gldm_SmallDependenceHighGrayLevelEmphasis": 0.0028,
   "original_firstorder_Energy": 85000,
-  "original_firstorder_Entropy": 6.8,
-  "original_firstorder_Contrast": 120,
+  "original_firstorder_Kurtosis": 3.2,
+  "original_shape_Maximum2DDiameterSlice": 52.1,
+  "original_glszm_GrayLevelNonUniformityNormalized": 0.15,
+  "original_firstorder_Maximum": 320,
 };
 
 const EXTRACTION_STAGES = [
@@ -168,13 +171,17 @@ function PatientForm({ onPredict, loading, onNotify }) {
     onPredict(combined);
   };
 
-  // ---- Radiomic display fields ----
+  // ---- Radiomic display fields (9 RSF-A model features) ----
   const radiomicFields = [
-    { key: "original_shape_MeshVolume", label: "Tumor Volume (mm³)", icon: Ruler },
-    { key: "sphericity", label: "Sphericity", icon: ScanLine },
-    { key: "mean_intensity", label: "Mean Intensity (HU)", icon: ScanLine },
-    { key: "original_firstorder_Contrast", label: "Contrast", icon: ScanLine },
-    { key: "original_firstorder_Entropy", label: "Entropy", icon: ScanLine },
+    { key: "original_shape_MeshVolume", label: "Mesh Volume (mm³)", icon: Ruler },
+    { key: "original_shape_MajorAxisLength", label: "Major Axis Length", icon: Ruler },
+    { key: "original_shape_Maximum2DDiameterSlice", label: "Max 2D Diameter (Slice)", icon: Ruler },
+    { key: "original_firstorder_Energy", label: "Energy", icon: ScanLine },
+    { key: "original_firstorder_Kurtosis", label: "Kurtosis", icon: ScanLine },
+    { key: "original_firstorder_Maximum", label: "Maximum (HU)", icon: ScanLine },
+    { key: "original_glszm_SizeZoneNonUniformity", label: "Size Zone Non-Uniformity", icon: ScanLine },
+    { key: "original_glszm_GrayLevelNonUniformityNormalized", label: "Gray Level Non-Uniformity (Norm)", icon: ScanLine },
+    { key: "original_gldm_SmallDependenceHighGrayLevelEmphasis", label: "Small Dependence High Gray Level", icon: ScanLine },
   ];
 
   return (

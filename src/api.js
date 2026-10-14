@@ -106,6 +106,25 @@ export async function postExtractFeatures(file, onStage) {
 }
 
 // ============================================================
+// MOCK EXTRACTED CT FEATURES
+// ============================================================
+
+function mockExtractedFeatures() {
+  return {
+    "original_glszm_SizeZoneNonUniformity": 45.3,
+    "original_shape_MeshVolume": 42000,
+    "original_shape_MajorAxisLength": 38.5,
+    "original_gldm_SmallDependenceHighGrayLevelEmphasis": 0.0028,
+    "original_firstorder_Energy": 85000,
+    "original_firstorder_Kurtosis": 3.2,
+    "original_shape_Maximum2DDiameterSlice": 52.1,
+    "original_glszm_GrayLevelNonUniformityNormalized": 0.15,
+    "original_firstorder_Maximum": 320,
+    extraction_time_seconds: 3.42,
+  };
+}
+
+// ============================================================
 // MOCK PREDICTION DATA
 // ============================================================
 

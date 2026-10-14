@@ -3,9 +3,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import Dict, Any
 import time
+import tempfile
+import os
+import traceback
 
 from services.rag_service import ask_rag
 from services.prediction_service import predict_patient_risk
+from services.extraction_service import extract_features_from_ct
 
 
 # ============================================================
@@ -193,7 +197,7 @@ async def extract_features(file: UploadFile = File(...)):
             )
 
         # ----------------------------------------------------
-        # Read uploaded file
+        # Save uploaded file to a temporary file on disk
         # ----------------------------------------------------
 
         contents = await file.read()
@@ -206,48 +210,64 @@ async def extract_features(file: UploadFile = File(...)):
             f"({len(contents) / 1024 / 1024:.2f} MB)"
         )
 
-        # ----------------------------------------------------
-        # Step 1: 3D U-Net Segmentation
-        # (Placeholder — connect your segmentation model here)
-        # ----------------------------------------------------
+        suffix = ""
+        if filename.endswith(".nii.gz"):
+            suffix = ".nii.gz"
+        elif filename.endswith(".nii"):
+            suffix = ".nii"
+        elif filename.endswith(".dcm"):
+            suffix = ".dcm"
+        elif filename.endswith(".zip"):
+            suffix = ".zip"
 
-        print("Stage 1: Segmenting Tumor with 3D U-Net...")
+        tmp_fd, tmp_path = tempfile.mkstemp(suffix=suffix)
+        try:
+            with os.fdopen(tmp_fd, "wb") as tmp_file:
+                tmp_file.write(contents)
 
-        # TODO: Load best_lung_unet3d.pth and run inference
-        #       on the uploaded CT scan to produce a tumor mask.
+            print(f"Saved to temporary file: {tmp_path}")
 
-        # ----------------------------------------------------
-        # Step 2: PyRadiomics Feature Extraction
-        # (Placeholder — connect PyRadiomics here)
-        # ----------------------------------------------------
+            # ------------------------------------------------
+            # Step 1: 3D U-Net Segmentation
+            # ------------------------------------------------
 
-        print("Stage 2: Extracting Features via PyRadiomics...")
+            print("Stage 1: Segmenting Tumor with 3D U-Net...")
 
-        # TODO: Run pyradiomics on the CT + tumor mask
-        #       to extract the full radiomic feature set.
+            # ------------------------------------------------
+            # Step 2: PyRadiomics Feature Extraction
+            # ------------------------------------------------
 
-        # ----------------------------------------------------
-        # Return extracted features
-        # Replace these placeholder values with actual
-        # extraction results from your pipeline.
-        # ----------------------------------------------------
+            print("Stage 2: Extracting Features via PyRadiomics...")
 
-        extraction_time = time.time() - start_time
+            features = extract_features_from_ct(tmp_path)
 
-        return {
-            "success": True,
-            "data": {
-                "original_shape_MeshVolume": 42000,
-                "sphericity": 0.72,
-                "mean_intensity": -450,
-                "original_firstorder_Energy": 85000,
-                "original_firstorder_Entropy": 6.8,
-                "original_firstorder_Contrast": 120,
-                "extraction_time_seconds": round(
-                    extraction_time, 2
-                )
+            extraction_time = time.time() - start_time
+
+            print(
+                f"Feature extraction complete in "
+                f"{extraction_time:.2f}s"
+            )
+
+            return {
+                "success": True,
+                "data": {
+                    **features,
+                    "extraction_time_seconds": round(
+                        extraction_time, 2
+                    )
+                }
             }
-        }
+        finally:
+            # Clean up temporary file
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
+                print(f"Cleaned up temporary file: {tmp_path}")
+            # Clean up extracted DICOM directory if it was created
+            tmp_dir = os.path.dirname(tmp_path)
+            dicom_dir = os.path.join(tmp_dir, "dicom_extracted")
+            if os.path.exists(dicom_dir):
+                import shutil
+                shutil.rmtree(dicom_dir, ignore_errors=True)
 
     except ValueError as e:
 
@@ -259,8 +279,9 @@ async def extract_features(file: UploadFile = File(...)):
     except Exception as e:
 
         print("EXTRACTION ERROR:", str(e))
+        traceback.print_exc()
 
         raise HTTPException(
             status_code=500,
-            detail="An error occurred during feature extraction."
+            detail=f"An error occurred during feature extraction: {str(e)}"
         )
